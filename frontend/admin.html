@@ -68,10 +68,10 @@
           <tr><th>Nombre</th><th>Email</th><th>Rol</th><th></th></tr>
         </thead>
         <tbody>
-          <tr ng-if="(filteredUsers = (users | filter:userFilter)).length == 0">
+          <tr ng-if="(filteredUsers = (users | filter:filtrarUsuario)).length == 0">
             <td colspan="4">No se encontraron resultados</td>
           </tr>
-          <tr ng-repeat="u in filteredUsers">
+          <tr ng-repeat="u in users | filter:filtrarUsuario">
             <td>{{u.name}}</td>
             <td>{{u.email}}</td>
             <td>{{u.role}}</td>
@@ -136,7 +136,7 @@
           <button class="btn btn-primary" ng-click="addVideo()">Crear</button>
         </div>
       </div>
-      <input type="text" id="busqueda-video" placeholder="Buscar por título" class="form-control mb-3">
+      <input type="text" id="busqueda-video" placeholder="Buscar por título" class="form-control mb-3" ng-model="searchVideo">
       <table class="table">
         <thead>
           <tr><th>Nombre</th><th>URL</th><th>Categoría</th><th></th></tr>

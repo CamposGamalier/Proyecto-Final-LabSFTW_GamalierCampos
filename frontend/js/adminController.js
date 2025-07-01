@@ -13,7 +13,7 @@ app.controller("AdminController", function ($scope, $http, $timeout, API_URL) {
   $scope.newUser = {};
   $scope.newCategory = {};
   $scope.newVideo = {};
-  $scope.searchUser = "";
+  $scope.userFilter = "";
   $scope.searchVideo = "";
   $scope.editUser = {};
   $scope.editCategory = {};
@@ -65,14 +65,15 @@ app.controller("AdminController", function ($scope, $http, $timeout, API_URL) {
   }
   loadAll();
 
-  $scope.userFilter = function (u) {
-    if (!$scope.searchUser) return true;
-    var s = $scope.searchUser.toLowerCase();
-    return (
-      (u.name && u.name.toLowerCase().includes(s)) ||
-      (u.email && u.email.toLowerCase().includes(s))
+  $scope.filtrarUsuario = function (u) {
+  if (!$scope.searchUser) return true;
+  var s = $scope.searchUser.toLowerCase();
+  return (
+    (u.name && u.name.toLowerCase().includes(s)) ||
+    (u.email && u.email.toLowerCase().includes(s))
     );
   };
+
 
   $scope.videoFilter = function (v) {
     if (!$scope.searchVideo) return true;
@@ -283,16 +284,4 @@ app.controller("AdminController", function ($scope, $http, $timeout, API_URL) {
       });
   };
 
-  angular.element(document).ready(function () {
-    const inputBusqueda = document.getElementById("busqueda-video");
-    if (inputBusqueda) {
-      inputBusqueda.addEventListener("input", function () {
-        const termino = this.value.toLowerCase();
-        const videosFiltrados = listaVideos.filter((v) =>
-          (v.name || "").toLowerCase().includes(termino)
-        );
-        $scope.$apply(() => mostrarVideos(videosFiltrados));
-      });
-    }
-  });
 });

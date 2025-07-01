@@ -11,6 +11,7 @@ app.controller("UserController", function ($scope, $http, $sce, API_URL) {
   $scope.videos = [];
   $scope.selectedCategory = null;
   $scope.noVideos = false;
+  $scope.videoFilter = "";
 
   function loadCategories() {
     $http.get(API_URL + "/categories/" + session_id).then(function (res) {
@@ -37,24 +38,24 @@ app.controller("UserController", function ($scope, $http, $sce, API_URL) {
     return url.includes("youtube.com") || url.includes("youtu.be");
   };
 
-  $scope.search = function () {
-    if (!$scope.selectedCategory) {
-      $scope.videos = [];
-      $scope.noVideos = true;
-      return;
-    }
-    $http
-      .get(
-        API_URL +
-          "/public/category/" +
-          $scope.selectedCategory +
-          "/" +
-          session_id
-      )
-      .then(function (res) {
-        $scope.videos = res.data || [];
-        $scope.noVideos = $scope.videos.length === 0;
-      });
+ $scope.search = function () {
+  if (!$scope.selectedCategory) {
+    $scope.videos = [];
+    $scope.noVideos = true;
+    return;
+  }
+
+  $http
+    .get(API_URL + "/public/category/" + $scope.selectedCategory + "/" + session_id)
+    .then(function (res) {
+      const allVideos = res.data || [];
+      const filterText = $scope.videoFilter.toLowerCase();
+      $scope.videos = filterText
+        ? allVideos.filter(v => v.name.toLowerCase().includes(filterText))
+        : allVideos;
+
+      $scope.noVideos = $scope.videos.length === 0;
+    });
   };
 
   loadCategories();

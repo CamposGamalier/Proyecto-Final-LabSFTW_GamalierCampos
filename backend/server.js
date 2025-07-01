@@ -62,6 +62,26 @@ db.serialize(() => {
     }
   );
 });
+// Insertar usuario admin por defecto si no existe
+db.get("SELECT * FROM users WHERE email = 'admin@example.com'", (err, row) => {
+  if (err) {
+    console.error("Error verificando existencia de admin:", err.message);
+  } else if (!row) {
+    db.run(
+      "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+      ['Admin', 'admin@example.com', '1234', 'admin'],
+      (err) => {
+        if (err) {
+          console.error("Error creando usuario admin:", err.message);
+        } else {
+          console.log("Usuario admin@example.com creado con contraseña 1234");
+        }
+      }
+    );
+  } else {
+    console.log("El usuario admin ya existe.");
+  }
+});
 
 // ===================== LOGIN =====================
 app.post("/login", (req, res) => {
