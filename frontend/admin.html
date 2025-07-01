@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html ng-app="videoApp">
+<head>
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body ng-controller="AdminController">
+  <header class="main-header">
+    <h1 class="app-title">Gestor Multimedia</h1>
+    <div class="user-info">
+      <!-- <input type="text" placeholder="Buscar..." class="search-input"> -->
+      <span id="user-info"></span>
+      <button id="logout-btn" class="logout-btn">Cerrar sesión</button>
+    </div>
+  </header>
+  <div class="container">
+    <h1 class="mt-3 mb-4">Panel de Administración</h1>
+    <div class="alert alert-{{alert.type}}" ng-if="alert.msg">{{alert.msg}}</div>
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link" ng-class="{active: tab=='users'}" href ng-click="tab='users'">Usuarios</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" ng-class="{active: tab=='categories'}" href ng-click="tab='categories'">Categorías</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" ng-class="{active: tab=='videos'}" href ng-click="tab='videos'">Vídeos</a>
+      </li>
+    </ul>
+
+    <!-- Gestión de usuarios -->
+    <div ng-if="tab=='users'" class="mt-4">
+      <h3 class="mb-3">Gestión de usuarios</h3>
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" class="form-control" ng-model="newUser.name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" ng-model="newUser.email">
+          </div>
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" class="form-control" ng-model="newUser.password">
+          </div>
+          <div class="form-group">
+            <label>Rol</label>
+            <select class="form-control" ng-model="newUser.role">
+              <option value="admin">admin</option>
+              <option value="user">user</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" ng-click="addUser()">Crear</button>
+        </div>
+      </div>
+      <input
+        type="text"
+        class="form-control mb-2"
+        placeholder="Buscar usuario"
+        ng-model="searchUser"
+      />
+      <table class="table">
+        <thead>
+          <tr><th>Nombre</th><th>Email</th><th>Rol</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr ng-if="(filteredUsers = (users | filter:userFilter)).length == 0">
+            <td colspan="4">No se encontraron resultados</td>
+          </tr>
+          <tr ng-repeat="u in filteredUsers">
+            <td>{{u.name}}</td>
+            <td>{{u.email}}</td>
+            <td>{{u.role}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" ng-click="openEditUser(u)">Editar</button>
+              <button class="btn btn-danger btn-sm" ng-click="deleteUser(u)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Gestión de categorías -->
+    <div ng-if="tab=='categories'" class="mt-4">
+      <h3 class="mb-3">Gestión de categorías</h3>
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" class="form-control" ng-model="newCategory.name">
+          </div>
+          <button class="btn btn-primary" ng-click="addCategory()">Crear</button>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr><th>Nombre</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr ng-if="!categories || categories.length == 0">
+            <td colspan="2">No hay registros disponibles</td>
+          </tr>
+          <tr ng-repeat="c in categories">
+            <td>{{c.name}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" ng-click="openEditCategory(c)">Editar</button>
+              <button class="btn btn-danger btn-sm" ng-click="deleteCategory(c)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Gestión de vídeos -->
+    <div ng-if="tab=='videos'" class="mt-4">
+      <h3 class="mb-3">Gestión de vídeos</h3>
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" class="form-control" ng-model="newVideo.name">
+          </div>
+          <div class="form-group">
+            <label>URL</label>
+            <input type="text" class="form-control" ng-model="newVideo.url">
+          </div>
+          <div class="form-group">
+            <label>Categoría</label>
+            <select class="form-control" ng-model="newVideo.category_id" ng-options="c.id as c.name for c in categories">
+            </select>
+          </div>
+          <button class="btn btn-primary" ng-click="addVideo()">Crear</button>
+        </div>
+      </div>
+      <input type="text" id="busqueda-video" placeholder="Buscar por título" class="form-control mb-3">
+      <table class="table">
+        <thead>
+          <tr><th>Nombre</th><th>URL</th><th>Categoría</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr ng-if="(filteredVideos = (videos | filter:videoFilter)).length == 0">
+            <td colspan="4">No se encontraron resultados</td>
+          </tr>
+          <tr ng-repeat="v in filteredVideos">
+            <td>{{v.name}}</td>
+            <td>{{v.url}}</td>
+            <td>{{getCategoryName(v.category_id)}}</td>
+            <td>
+              <button class="btn btn-warning btn-sm" ng-click="openEditVideo(v)">Editar</button>
+              <button class="btn btn-danger btn-sm" ng-click="deleteVideo(v)">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Editar Usuario -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editUserLabel">Editar Usuario</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" class="form-control" ng-model="editUser.name">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" class="form-control" ng-model="editUser.email">
+            </div>
+            <div class="form-group">
+              <label>Contraseña</label>
+              <input type="password" class="form-control" ng-model="editUser.password">
+            </div>
+            <div class="form-group">
+              <label>Rol</label>
+              <select class="form-control" ng-model="editUser.role">
+                <option value="admin">admin</option>
+                <option value="user">user</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" ng-click="saveEditUser()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Categoría -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="editCategoryLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editCategoryLabel">Editar Categoría</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" class="form-control" ng-model="editCategory.name">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" ng-click="saveEditCategory()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Editar Vídeo -->
+    <div class="modal fade" id="editVideoModal" tabindex="-1" role="dialog" aria-labelledby="editVideoLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editVideoLabel">Editar Vídeo</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" class="form-control" ng-model="editVideo.name">
+            </div>
+            <div class="form-group">
+              <label>URL</label>
+              <input type="text" class="form-control" ng-model="editVideo.url">
+            </div>
+            <div class="form-group">
+              <label>Categoría</label>
+              <select class="form-control" ng-model="editVideo.category_id" ng-options="c.id as c.name for c in categories"></select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" ng-click="saveEditVideo()">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <footer class="main-footer">
+    <p>&copy; 2025 Gestor Multimedia | Universidad Politécnica
+      <!-- <a href="about.html">Acerca de</a> -->
+    </p>
+  </footer>
+
+  <script src="https://code.angularjs.org/1.8.2/angular.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/headerFooter.js"></script>
+  <script src="js/adminController.js"></script>
+</body>
+</html>
