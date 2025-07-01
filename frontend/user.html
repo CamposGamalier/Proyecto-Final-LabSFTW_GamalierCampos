@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html ng-app="videoApp">
+<head>
+  <title>Listado de Vídeos</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body ng-controller="UserController">
+  <header class="main-header">
+    <h1 class="app-title">Gestor Multimedia</h1>
+    <div class="user-info">
+      <!-- <input type="text" placeholder="Buscar..." class="search-input"> -->
+      <span id="user-info"></span>
+      <button id="logout-btn" class="logout-btn">Cerrar sesión</button>
+    </div>
+  </header>
+  <div class="container">
+    <h1>Listado de Vídeos</h1>
+
+    <div class="form-group mb-3">
+      <label>Selecciona una categoría:</label>
+      <select
+        class="form-control"
+        ng-model="selectedCategory"
+        ng-options="c.id as c.name for c in categories"
+        ng-change="search()"
+      ></select>
+    </div>
+
+    <div ng-if="!noVideos">
+      <div class="card mb-3" ng-repeat="v in videos">
+        <div class="card-body">
+          <h4 class="card-title">{{v.name}}</h4>
+          <div ng-if="isYoutube(v.url)">
+            <iframe
+              width="100%"
+              height="315"
+              ng-src="{{getEmbedUrl(v.url)}}"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div ng-if="!isYoutube(v.url)">
+            <video width="100%" controls>
+              <source ng-src="{{v.url}}" type="video/mp4" />
+            </video>
+          </div>
+          <p class="mt-2">
+            <a ng-href="{{v.url}}" target="_blank">{{v.url}}</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div ng-if="noVideos" class="alert alert-info">No hay videos para esta categoría aún</div>
+  </div>
+  <footer class="main-footer">
+    <p>&copy; 2025 Gestor Multimedia | Universidad Politécnica
+      <!-- <a href="about.html">Acerca de</a> -->
+    </p>
+  </footer>
+
+  <script src="https://code.angularjs.org/1.8.2/angular.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/headerFooter.js"></script>
+  <script src="js/userController.js"></script>
+</body>
+</html>
